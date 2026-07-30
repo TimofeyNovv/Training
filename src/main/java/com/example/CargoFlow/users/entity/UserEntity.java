@@ -33,6 +33,9 @@ public class UserEntity implements UserDetails {
     @Column(name = "email", length = 254, nullable = false, unique = true)
     private String email;
 
+    @Column(name = "phone", unique = true)
+    private String phone;
+
     @Size(max = 72, min = 8)
     @Column(name = "password", nullable = false, length = 72)
     private String password;

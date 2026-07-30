@@ -14,6 +14,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -46,11 +48,12 @@ public class AuthenticationService {
         }
 
         UserEntity userEntity = UserEntity.builder()
-                .email(request.getEmail())
+                .email(request.getEmail().trim().toLowerCase(Locale.ROOT))
                 .password(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .role(request.getRole())
                 .status(UserStatus.ACTIVE)
+                .phone(request.getPhone())
                 .build();
 
         userRepository.save(userEntity);

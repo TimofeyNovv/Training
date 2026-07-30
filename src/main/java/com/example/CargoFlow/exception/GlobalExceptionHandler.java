@@ -1,12 +1,15 @@
 package com.example.CargoFlow.exception;
 
 import com.example.CargoFlow.exception.dto.ApiErrorResponse;
+import com.example.CargoFlow.exception.dto.FieldErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @RestControllerAdvice
@@ -28,15 +31,40 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ApiErrorResponse> handleUserAlreadyExistsException(
-            UserNotFoundException exception
+            UserAlreadyExistsException exception
     ) {
         ApiErrorResponse errorResponse = ApiErrorResponse.builder()
-                .code("CONFLICT")
+                .code("EMAIL_ALREADY_EXISTS")
                 .message(exception.getMessage())
                 .traceId(UUID.randomUUID())
                 .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException exception
+    ) {
+        List<FieldErrorResponse> fieldErrors = exception
+                .getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> new FieldErrorResponse(
+                        error.getField(),
+                        error.getDefaultMessage()
+                ))
+                .toList();
+
+        ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code("VALIDATION_ERROR")
+                .message("Request validation failed")
+                .traceId(UUID.randomUUID())
+                .timestamp(Instant.now())
+                .fieldErrors(fieldErrors)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorResponse);
     }
 }

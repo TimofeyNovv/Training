@@ -22,6 +22,9 @@ public class JwtService {
     @Value("${SECRET_KEY}")
     private String SECRET_KEY;
 
+    @Value("${jwt.access-token.expiration.ms}")
+    private Integer accessTokenExpirationMs;
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -50,7 +53,7 @@ public class JwtService {
                 .subject(userDetails.getUsername())
                 .claims(extractClaim)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 3600 * 24))
+                .expiration(new Date(System.currentTimeMillis() + accessTokenExpirationMs))
                 .compact();
     }
 
