@@ -2,6 +2,7 @@ package com.example.CargoFlow.demo.controller;
 
 import com.example.CargoFlow.demo.dto.PingResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,15 @@ public class DemoController {
     )
     @GetMapping("/ping")
     public ResponseEntity<PingResponse> ping() {
+        return ResponseEntity.ok(new PingResponse("ok", "1.0.0"));
+    }
+
+    @SecurityRequirement(name = "jwtAuth")
+    @Operation(
+            summary = "ping достпуный только после атворизации"
+    )
+    @GetMapping("/authping")
+    public ResponseEntity<PingResponse> authPing() {
         return ResponseEntity.ok(new PingResponse("ok", "1.0.0"));
     }
 }
