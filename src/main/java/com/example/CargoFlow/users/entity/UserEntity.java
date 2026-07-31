@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -52,6 +53,17 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private UserStatus status;
 
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified;
+
+    @Column(name = "avatar_file_id")
+    private UUID avatarFileId;
+
+    @Column(name = "createdAt")
+    private Instant createdAt;
+
+    @Column(name = "updatedAt")
+    private Instant updatedAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

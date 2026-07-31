@@ -3,6 +3,7 @@ package com.example.CargoFlow.auth.controller;
 import com.example.CargoFlow.auth.dto.AuthenticationRequest;
 import com.example.CargoFlow.auth.dto.AuthenticationResponse;
 import com.example.CargoFlow.auth.dto.RegisterRequest;
+import com.example.CargoFlow.auth.dto.RegistrationResponse;
 import com.example.CargoFlow.auth.service.AuthenticationService;
 import com.example.CargoFlow.exception.dto.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,9 +50,9 @@ public class AuthenticationController {
             }
     )
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
+    public ResponseEntity<RegistrationResponse> register(
             @Valid @RequestBody RegisterRequest request
     ) {
-        return ResponseEntity.ok().body(authenticationService.register(request));
+        return ResponseEntity.status(HttpStatus.CREATED ).body(authenticationService.register(request));
     }
 }
