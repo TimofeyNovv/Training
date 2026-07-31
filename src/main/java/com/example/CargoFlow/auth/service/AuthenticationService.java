@@ -6,6 +6,7 @@ import com.example.CargoFlow.auth.dto.RegisterRequest;
 import com.example.CargoFlow.exception.UserAlreadyExistsException;
 import com.example.CargoFlow.exception.UserNotFoundException;
 import com.example.CargoFlow.users.entity.UserEntity;
+import com.example.CargoFlow.users.entity.enums.UserRole;
 import com.example.CargoFlow.users.entity.enums.UserStatus;
 import com.example.CargoFlow.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,17 +44,21 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new UserAlreadyExistsException("user with email - " + request.getEmail() + " already exists");
+        String email = normalizeEmail(request.getEmail());
+
+        if (userRepository.existsByEmail(email)) {
+            throw new UserAlreadyExistsException(
+                    "User with this email already exists"
+            );
         }
 
         UserEntity userEntity = UserEntity.builder()
                 .email(request.getEmail().trim().toLowerCase(Locale.ROOT))
                 .password(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
-                .role(request.getRole())
+                .role(UserRole.valueOf(request.getRole()))
                 .status(UserStatus.ACTIVE)
-                .phone(request.getPhone())
+                .phone(normalizePhone(request.getPhone()))
                 .build();
 
         userRepository.save(userEntity);
@@ -61,5 +66,17 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtService.generateToken(userEntity))
                 .build();
+    }
+
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizePhone(String phone) {
+        if (phone == null || phone.isBlank()) {
+            return null;
+        }
+
+        return phone.trim();
     }
 }
