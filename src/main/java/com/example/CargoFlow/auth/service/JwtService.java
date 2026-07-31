@@ -13,6 +13,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -20,13 +21,23 @@ import java.util.function.Function;
 public class JwtService {
 
     @Value("${SECRET_KEY}")
-    private String SECRET_KEY;
+    private String secretKey;
 
     @Value("${jwt.access-token.expiration.ms}")
-    private Integer accessTokenExpirationMs;
+    private long accessTokenExpirationMs;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims ->
+                claims.get("role", String.class)
+        );
+    }
+
+    public String extractJti(String token) {
+        return extractClaim(token, Claims::getId);
     }
 
     public Claims extractAllClaims(String token) {
@@ -38,32 +49,62 @@ public class JwtService {
     }
 
     private SecretKey getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T extractClaim(
+            String token,
+            Function<Claims, T> claimsResolver
+    ) {
         Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(Map<String, Object> extractClaim, UserDetails userDetails) {
+    public String generateToken(
+            Map<String, Object> extraClaims,
+            UserDetails userDetails
+    ) {
+        long currentTime = System.currentTimeMillis();
+
         return Jwts.builder()
-                .signWith(getSignKey(), Jwts.SIG.HS256)
+                .claims(extraClaims)
                 .subject(userDetails.getUsername())
-                .claims(extractClaim)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + accessTokenExpirationMs))
+                .id(UUID.randomUUID().toString())
+                .issuedAt(new Date(currentTime))
+                .expiration(
+                        new Date(currentTime + accessTokenExpirationMs)
+                )
+                .signWith(getSignKey(), Jwts.SIG.HS256)
                 .compact();
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        Map<String, Object> claims = new HashMap<>();
+
+        String role = userDetails.getAuthorities()
+                .stream()
+                .findFirst()
+                .map(authority -> authority.getAuthority())
+                .orElseThrow(() ->
+                        new IllegalStateException(
+                                "User does not have a role"
+                        )
+                );
+
+        claims.put("role", role);
+
+        return generateToken(claims, userDetails);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(
+            String token,
+            UserDetails userDetails
+    ) {
         String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+
+        return username.equals(userDetails.getUsername())
+                && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

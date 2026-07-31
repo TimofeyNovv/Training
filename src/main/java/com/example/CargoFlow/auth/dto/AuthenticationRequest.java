@@ -16,16 +16,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticationRequest {
 
-    @Email(message = "incorrect email format")
-    @Size(max = 254, message = "Email max length is 255")
+//    @Email(message = "incorrect email format")
+//    @Size(max = 254, message = "Email max length is 255")
     @NotBlank(message = "email is blank")
     private String email;
 
-    @Pattern(
-            regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$",
-            message = "password must contain at least one letter and one digit"
-    )
-    @Size(min = 8, max = 72, message = "password length min - 8, max - 72")
+//    @Pattern(
+//            regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$",
+//            message = "password must contain at least one letter and one digit"
+//    )
+//    @Size(min = 8, max = 72, message = "password length min - 8, max - 72")
     @NotBlank(message = "password is blank")
     private String password;
 
