@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 public class AuthenticationResponse {
 
     @Schema(description = "access_token, обрати внимание, что я всего в ответе пишу через нижний слеш")
-    @JsonProperty("access_token")
     private String accessToken;
     private Integer accessExpiresIn;
     private String refreshToken;
