@@ -101,4 +101,17 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
+
+    @ExceptionHandler(RefreshTokenException.class)
+    public ResponseEntity<ApiErrorResponse> handleRefreshTokenExpired(RefreshTokenException ex) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .code("UNAUTHORIZED")
+                .message(ex.getMessage())
+                .traceId(UUID.randomUUID())
+                .timestamp(Instant.now())
+                .build();
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(response);
+    }
 }
