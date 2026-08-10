@@ -27,12 +27,16 @@ public class RefreshTokenService {
     public RefreshTokenEntity createRefreshToken(UserEntity user) {
         deleteAllByUser(user);
 
-        return RefreshTokenEntity.builder()
+        RefreshTokenEntity refreshToken  = RefreshTokenEntity.builder()
                 .createdAt(Instant.now())
                 .expiryAt(Instant.now().plusSeconds(refreshTokenExpirationSeconds))
                 .refreshToken(UUID.randomUUID().toString())
                 .user(user)
                 .build();
+
+        refreshTokenRepository.save(refreshToken);
+
+        return refreshToken;
     }
 
     @Transactional
@@ -61,5 +65,10 @@ public class RefreshTokenService {
 
         refreshTokenRepository.delete(oldToken);
         return createRefreshToken(oldToken.getUser());
+    }
+
+    @Transactional
+    public void deleteRefreshToken(String refreshToken) {
+        refreshTokenRepository.deleteByRefreshToken(refreshToken);
     }
 }

@@ -1,9 +1,6 @@
 package com.example.CargoFlow.auth.controller;
 
-import com.example.CargoFlow.auth.dto.AuthenticationRequest;
-import com.example.CargoFlow.auth.dto.AuthenticationResponse;
-import com.example.CargoFlow.auth.dto.RegisterRequest;
-import com.example.CargoFlow.auth.dto.RegistrationResponse;
+import com.example.CargoFlow.auth.dto.*;
 import com.example.CargoFlow.auth.service.AuthenticationService;
 import com.example.CargoFlow.exception.dto.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,5 +51,46 @@ public class AuthenticationController {
             @Valid @RequestBody RegisterRequest request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED ).body(authenticationService.register(request));
+    }
+
+    @Operation(
+            summary = "эндпоинт для повторной отправки кода ждя подтверждения почты",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "всегда 204")
+            }
+    )
+    @PostMapping("/email/resend")
+    public ResponseEntity<?> resend(
+            @Valid @RequestBody ResendRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);///нереализованно
+    }
+
+    @Operation(
+            summary = "получение новой token pair",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "успешно, возвращается новая пара токенов"),
+                    @ApiResponse(responseCode = "401", description = "некорректный токен")
+            }
+    )
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenPairResponse> refresh(
+            @Valid @RequestBody TokenPairByRefreshTokenRequest request
+    ) {
+        return ResponseEntity.ok().body(authenticationService.refresh(request));
+    }
+
+    @Operation(
+            summary = "сделать текущую сессию польщователя недействительной",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "при корректном вводе всегда ответ 204")
+            }
+    )
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(
+            @Valid @RequestBody TokenPairByRefreshTokenRequest request
+    ) {
+        authenticationService.logout(request);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 }
