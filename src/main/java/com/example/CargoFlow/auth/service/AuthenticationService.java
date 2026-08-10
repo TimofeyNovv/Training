@@ -46,13 +46,13 @@ public class AuthenticationService {
     public AuthenticationResponse login(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
+                        normalizeEmail(request.getEmail()),
                         request.getPassword()
                 )
         );
 
-        UserEntity userEntity = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("user with email - " + request.getEmail() + " not found"));
+        UserEntity userEntity = userRepository.findByEmail(normalizeEmail(request.getEmail()))
+                .orElseThrow(() -> new UserNotFoundException("user with email - " + normalizeEmail(request.getEmail()) + " not found"));
 
         var refreshToken = refreshTokenService.createRefreshToken(userEntity).getRefreshToken();
 
