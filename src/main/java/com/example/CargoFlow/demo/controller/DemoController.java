@@ -25,7 +25,24 @@ public class DemoController {
     )
     @GetMapping("/ping")
     public ResponseEntity<PingResponse> ping() {
-        return ResponseEntity.ok(new PingResponse("ok", "1.0.0"));
+        String status = redisDemoService.getCachedPingStatus();
+
+        return ResponseEntity.ok(
+                new PingResponse(status, "1.0.0")
+        );
+    }
+
+    @PostMapping("/ping/clear-cache")
+    public ResponseEntity<Void> clearPingCache() {
+
+        redisDemoService.clearPingCache();
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/ping/update-cache")
+    public ResponseEntity<String> updatePingCache() {
+        return ResponseEntity.ok(redisDemoService.updatePingCache());
     }
 
     @SecurityRequirement(name = "jwtAuth")
