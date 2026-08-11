@@ -28,6 +28,8 @@ public class SecurityConfig {
                         req.requestMatchers(
                                 "/docs",
                                 "/api/v1/demo/ping",
+                                "/api/v1/demo/redis-ping",
+                                "/api/v1/demo/redis-demo/**",
                                 "/api/v1/auth/register",
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/refresh",

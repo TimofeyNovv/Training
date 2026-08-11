@@ -10,7 +10,6 @@ import com.example.CargoFlow.users.entity.UserEntity;
 import com.example.CargoFlow.users.entity.enums.UserRole;
 import com.example.CargoFlow.users.entity.enums.UserStatus;
 import com.example.CargoFlow.users.repository.UserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
