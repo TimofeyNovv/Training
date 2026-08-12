@@ -31,6 +31,7 @@ public class SecurityConfig {
                                 "/api/v1/demo/redis-ping",
                                 "/api/v1/demo/redis-demo/**",
                                 "/api/v1/demo/ping/clear-cache",
+                                "/api/v1/demo/mail-test",
                                 "/api/v1/auth/register",
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/refresh",

@@ -1,15 +1,13 @@
 package com.example.CargoFlow.demo.controller;
 
+import com.example.CargoFlow.auth.service.MailService;
 import com.example.CargoFlow.demo.dto.PingResponse;
 import com.example.CargoFlow.demo.service.RedisDemoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -19,6 +17,7 @@ import java.util.Map;
 public class DemoController {
 
     private final RedisDemoService redisDemoService;
+    private final MailService mailService;
 
     @Operation(
             summary = "ping pong"
@@ -73,5 +72,14 @@ public class DemoController {
     @GetMapping("/redis-demo/ttl")
     public ResponseEntity<Long> getRedisDemoTtl() {
         return ResponseEntity.ok(redisDemoService.getDemoTtl());
+    }
+
+    @PostMapping("/mail-test")
+    public ResponseEntity<Void> sendMailTest(
+            @RequestParam String email
+    ) {
+        mailService.sendVerificationCode(email, "123456");
+
+        return ResponseEntity.noContent().build();
     }
 }

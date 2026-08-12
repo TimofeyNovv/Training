@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -33,9 +35,10 @@ public class AuthenticationController {
     )
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(
-            @Valid @RequestBody AuthenticationRequest request
+            @Valid @RequestBody AuthenticationRequest request,
+            HttpServletRequest httpRequest
     ) {
-        return ResponseEntity.ok().body(authenticationService.login(request));
+        return ResponseEntity.ok(authenticationService.login(request, httpRequest.getRemoteAddr()));
     }
 
     @Operation(
@@ -48,9 +51,10 @@ public class AuthenticationController {
     )
     @PostMapping("/register")
     public ResponseEntity<RegistrationResponse> register(
-            @Valid @RequestBody RegisterRequest request
+            @Valid @RequestBody RegisterRequest request,
+            HttpServletRequest httpRequest
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED ).body(authenticationService.register(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authenticationService.register(request, httpRequest.getRemoteAddr()));
     }
 
     @Operation(
@@ -60,10 +64,12 @@ public class AuthenticationController {
             }
     )
     @PostMapping("/email/resend")
-    public ResponseEntity<?> resend(
-            @Valid @RequestBody ResendRequest request
+    public ResponseEntity<Void> resend(
+            @Valid @RequestBody ResendRequest request,
+            HttpServletRequest httpRequest
     ) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);///нереализованно
+        authenticationService.resendVerificationCode(request, httpRequest.getRemoteAddr());
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(
@@ -86,11 +92,19 @@ public class AuthenticationController {
                     @ApiResponse(responseCode = "204", description = "при корректном вводе всегда ответ 204")
             }
     )
+    @SecurityRequirement(name = "jwtAuth")
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
             @Valid @RequestBody TokenPairByRefreshTokenRequest request
     ) {
         authenticationService.logout(request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
+    @PostMapping("/email/verify")
+    public ResponseEntity<AuthenticationResponse> verifyEmail(
+            @Valid @RequestBody EmailVerificationRequest request
+    ) {
+        return ResponseEntity.ok(authenticationService.verifyEmail(request));
     }
 }

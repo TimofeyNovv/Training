@@ -9,6 +9,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.authentication.LockedException;
 
 import java.time.Instant;
 import java.util.List;
@@ -112,6 +113,89 @@ public class GlobalExceptionHandler {
                 .build();
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidEmailVerificationCodeException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidEmailVerificationCode(
+            InvalidEmailVerificationCodeException exception
+    ) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .code("UNAUTHORIZED")
+                .message(exception.getMessage())
+                .traceId(UUID.randomUUID())
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(response);
+    }
+
+    @ExceptionHandler(EmailAlreadyVerifiedException.class)
+    public ResponseEntity<ApiErrorResponse> handleEmailAlreadyVerified(
+            EmailAlreadyVerifiedException exception
+    ) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .code("CONFLICT")
+                .message(exception.getMessage())
+                .traceId(UUID.randomUUID())
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ApiErrorResponse> handleRateLimitExceeded(
+            RateLimitExceededException exception
+    ) {
+
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .code("RATE_LIMIT_EXCEEDED")
+                .message(exception.getMessage())
+                .traceId(UUID.randomUUID())
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(response);
+    }
+
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ResponseEntity<ApiErrorResponse> handleEmailNotVerified(
+            EmailNotVerifiedException exception
+    ) {
+
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .code("EMAIL_NOT_VERIFIED")
+                .message(exception.getMessage())
+                .traceId(UUID.randomUUID())
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(response);
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ApiErrorResponse> handleLocked(
+            LockedException exception
+    ) {
+
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .code("FORBIDDEN")
+                .message("User account is blocked")
+                .traceId(UUID.randomUUID())
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(response);
     }
 }
